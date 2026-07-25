@@ -1,13 +1,22 @@
-name: Telegram Bot Email - Execução Automática
+name: Telegram Bot Email - Execução automática
 
 on:
   schedule:
-    - cron: "*/1 * * * *"   # Executa a cada 1 minuto
-  workflow_dispatch:         # Permite execução manual também
+    # O menor intervalo suportado pelo agendamento do GitHub Actions é 5 minutos.
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-bot-email
+  cancel-in-progress: false
 
 jobs:
   execute-bot:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Clonar repositório
@@ -17,6 +26,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
 
       - name: Instalar dependências
         run: |
